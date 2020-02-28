@@ -47,7 +47,7 @@ def string_to_binary(str):
 
     str - the string to convert
     """
-    return bin(int(binascii.hexlify(str.encode()), 16))[2:]
+    return bin(int(binascii.hexlify(str.encode()), 16))[2:].zfill(8*len(str))
 
 def binary_to_string(bnry):
     """
