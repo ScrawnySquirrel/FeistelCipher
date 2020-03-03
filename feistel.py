@@ -26,17 +26,9 @@ def main(argv):
         txt = open(args.input, "r").read()
 
     if args.encrypt is True:
-        ct = feistel_encrypt(string_to_binary(txt), args.rounds)
-        print("cip: {}".format(ct))
-        # print("xxx: {}".format(ct))
-        # print("Orig: {}".format(txt))
-        print("Bin: {}".format(string_to_binary(txt)))
-        # print("Str: {}".format(binary_to_string(string_to_binary(txt))))
-        # print("new: {}".format(binary_to_string(ct)))
-
+        ct = feistel_encrypt(string_to_binary(txt), string_to_binary(args.key), args.rounds)
     elif args.decrypt is True:
-        print(binary_to_string(feistel_decrypt(txt, args.rounds)))
-
+        pt = feistel_decrypt(hex_to_binary(txt), string_to_binary(args.key), args.rounds)
 
 def split_half(str):
     split_pairs = str[:len(str)//2], str[len(str)//2:]
