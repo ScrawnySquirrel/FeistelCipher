@@ -3,6 +3,7 @@
 import sys
 import argparse
 import binascii
+import math
 
 def main(argv):
     # Define script description and the arugment list
@@ -15,7 +16,7 @@ def main(argv):
     parser.add_argument('-t', '--text', help='the plaintext to encrypt')
     parser.add_argument('-i', '--input', help='name of the input file')
     parser.add_argument('-o', '--output', help='name of the output file')
-    parser.add_argument('-k', '--key', help='the decryption key')
+    parser.add_argument('-k', '--key', help='the decryption key', required=True)
     # parser.add_argument('-f', '--function', help='function to use for cipher', default="")
     args = parser.parse_args()
 
@@ -100,6 +101,18 @@ def xor_compare(bin1, bin2):
     return '{0:0{1}b}'.format(int(bin1,2) ^ int(bin2, 2), len(bin1))
 
 def feistel_encrypt(pt_bin, rounds):
+def proper_key(key, klen):
+    ckey = "" # Cipher key
+    if len(key) < klen:
+        lmulti = math.floor(klen/len(key))
+        print(lmulti)
+        lmod = klen % len(key)
+        ckey = key * int(lmulti) + key[:lmod]
+    elif len(key) > klen:
+        ckey = key[:klen]
+    else:
+        ckey = key
+    return ckey
     enc_pairs = list(split_half(pt_bin))
     print("{}".format(enc_pairs))
     for i in range(rounds):
