@@ -100,7 +100,6 @@ def xor_compare(bin1, bin2):
     """
     return '{0:0{1}b}'.format(int(bin1,2) ^ int(bin2, 2), len(bin1))
 
-def feistel_encrypt(pt_bin, rounds):
 def proper_key(key, klen):
     ckey = "" # Cipher key
     if len(key) < klen:
@@ -113,21 +112,24 @@ def proper_key(key, klen):
     else:
         ckey = key
     return ckey
-    enc_pairs = list(split_half(pt_bin))
-    print("{}".format(enc_pairs))
-    for i in range(rounds):
-        # enc_pairs[0],  enc_pairs[1] = enc_pairs[1], xor_compare(enc_pairs[0], enc_pairs[1])
-        enc_pairs[0],  enc_pairs[1] = enc_pairs[1], xor_compare(enc_pairs[0], enc_pairs[1])
-        print(enc_pairs)
-    return ''.join(enc_pairs)
-    # return bin(int(''.join(enc_pairs).encode(), 2))[2:]
-    # return bin(int(binascii.hexlify(''.join(enc_pairs)), 16))[2:]
 
-def feistel_decrypt(ct_bin, rounds):
+def feistel_function(ri, key, round):
+    max_size = int("1"*len(ri), 2)
+    return int_to_binary(pow(binary_to_int(ri) * binary_to_int(key), round) % max_size, len(ri))
+
+
+def feistel_encrypt(pt_bin, key, rounds):
+    enc_pairs = list(split_half(pt_bin))
+    enc_key = proper_key(key, len(enc_pairs[0]))
+    for i in range(1,rounds+1):
+        enc_pairs[0],  enc_pairs[1] = enc_pairs[1], xor_compare(enc_pairs[0], feistel_function(enc_pairs[1], enc_key, i))
+    return ''.join(enc_pairs)
+
+def feistel_decrypt(ct_bin, key, rounds):
     dec_pairs = list(split_half(ct_bin))
-    for i in range(rounds):
-        dec_pairs[0],  dec_pairs[1] = xor_compare(dec_pairs[0], dec_pairs[1]), dec_pairs[0]
-        print(dec_pairs)
+    dec_key = proper_key(key, len(dec_pairs[0]))
+    for i in reversed(range(1, rounds+1)):
+        dec_pairs[0],  dec_pairs[1] = xor_compare(dec_pairs[1], feistel_function(dec_pairs[0], dec_key, i)), dec_pairs[0]
     return ''.join(dec_pairs)
 
 if __name__ == "__main__":
