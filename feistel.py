@@ -17,7 +17,6 @@ def main(argv):
     parser.add_argument('-i', '--input', help='name of the input file')
     parser.add_argument('-o', '--output', help='name of the output file')
     parser.add_argument('-k', '--key', help='the decryption key', required=True)
-    # parser.add_argument('-f', '--function', help='function to use for cipher', default="")
     args = parser.parse_args()
 
     if args.text is not None:
