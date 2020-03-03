@@ -63,15 +63,33 @@ def binary_to_hex(bnry):
 
     bnry - the binary to convert
     """
-    return hex(int(bnry,2))[2:]
+    return hex(int(bnry, 2))[2:]
 
-def hex_to_binary(hexa):
+def hex_to_binary(hexa, nbits = 0):
     """
     Return a hex converted binary.
 
     hexa - the hex to convert
+    nbits - number of bits for padding
     """
-    return bin(int(hexa, 16)).zfill(8)
+    return bin(int(hexa, 16))[2:].zfill(nbits)
+
+def binary_to_int(bnry):
+    """
+    Return a binary converted integer.
+
+    bnry - the binary to convert
+    """
+    return int(bnry, 2)
+
+def int_to_binary(inte, nbits = 0):
+    """
+    Return a integer converted binary.
+
+    hexa - the integer to convert
+    nbits - number of bits for padding
+    """
+    return bin(inte)[2:].zfill(nbits)
 
 def xor_compare(bin1, bin2):
     """
