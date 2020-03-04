@@ -28,7 +28,6 @@ def main(argv):
     if args.output is not None:
         out_file = open(args.output, "wb" if args.encrypt else "w")
 
-    mylist = []
     if args.encrypt is True:
         ct = feistel_encrypt(string_to_binary(txt), string_to_binary(args.key), args.rounds)
         output_fp(binary_to_byte(ct), out_file)
@@ -135,7 +134,6 @@ def proper_key(key, klen):
 def feistel_function(ri, key, round):
     max_size = int("1"*len(ri), 2)
     return int_to_binary(pow(binary_to_int(ri) * binary_to_int(key), round) % max_size, len(ri))
-
 
 def feistel_encrypt(pt_bin, key, rounds):
     enc_pairs = list(split_half(pt_bin))
