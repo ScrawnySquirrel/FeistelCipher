@@ -31,7 +31,7 @@ def main(argv):
     mylist = []
     if args.encrypt is True:
         ct = feistel_encrypt(string_to_binary(txt), string_to_binary(args.key), args.rounds)
-        output_fp(binary_to_hex(ct), out_file)
+        output_fp(binary_to_byte(ct), out_file)
     elif args.decrypt is True:
         pt = feistel_decrypt(hex_to_binary(txt.rstrip()), string_to_binary(args.key), args.rounds)
         output_fp(binary_to_string(pt), out_file)
