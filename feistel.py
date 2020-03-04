@@ -47,7 +47,7 @@ def output_fp(msg, ofile = None, fp_out = False):
     if ofile is None:
         print(msg)
     else:
-        ofile.write(msg + "\n")
+        ofile.write(msg)
         if fp_out is True:
             print(msg)
     return
