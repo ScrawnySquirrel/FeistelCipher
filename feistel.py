@@ -22,11 +22,11 @@ def main(argv):
     if args.text is not None:
         txt = args.text
     elif args.input is not None:
-        txt = open(args.input, "r").read()
+        txt = open(args.input, "r" if args.encrypt else "rb").read()
 
     out_file = None
     if args.output is not None:
-        out_file = open(args.output, "w")
+        out_file = open(args.output, "wb" if args.encrypt else "w")
 
     mylist = []
     if args.encrypt is True:
