@@ -24,10 +24,33 @@ def main(argv):
     elif args.input is not None:
         txt = open(args.input, "r").read()
 
+    out_file = None
+    if args.output is not None:
+        out_file = open(args.output, "w")
+
+    mylist = []
     if args.encrypt is True:
         ct = feistel_encrypt(string_to_binary(txt), string_to_binary(args.key), args.rounds)
+        output_fp(binary_to_hex(ct), out_file)
     elif args.decrypt is True:
-        pt = feistel_decrypt(hex_to_binary(txt), string_to_binary(args.key), args.rounds)
+        pt = feistel_decrypt(hex_to_binary(txt.rstrip()), string_to_binary(args.key), args.rounds)
+        output_fp(binary_to_string(pt), out_file)
+
+def output_fp(msg, ofile = None, fp_out = False):
+    """
+    Print to standard out or to file.
+
+    msg - the messsage to output
+    ofile - file to output
+    fp_out - output to both
+    """
+    if ofile is None:
+        print(msg)
+    else:
+        ofile.write(msg + "\n")
+        if fp_out is True:
+            print(msg)
+    return
 
 def split_half(str):
     split_pairs = str[:len(str)//2], str[len(str)//2:]
@@ -95,7 +118,6 @@ def proper_key(key, klen):
     ckey = "" # Cipher key
     if len(key) < klen:
         lmulti = math.floor(klen/len(key))
-        print(lmulti)
         lmod = klen % len(key)
         ckey = key * int(lmulti) + key[:lmod]
     elif len(key) > klen:
