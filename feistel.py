@@ -33,7 +33,7 @@ def main(argv):
         ct = feistel_encrypt(string_to_binary(txt), string_to_binary(args.key), args.rounds)
         output_fp(binary_to_byte(ct), out_file)
     elif args.decrypt is True:
-        pt = feistel_decrypt(hex_to_binary(txt.rstrip()), string_to_binary(args.key), args.rounds)
+        pt = feistel_decrypt(byte_to_binary(txt), string_to_binary(args.key), args.rounds)
         output_fp(binary_to_string(pt), out_file)
 
 def output_fp(msg, ofile = None, fp_out = False):
