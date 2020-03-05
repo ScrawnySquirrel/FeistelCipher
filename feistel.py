@@ -121,7 +121,7 @@ def xor_compare(bin1, bin2):
     return '{0:0{1}b}'.format(int(bin1,2) ^ int(bin2, 2), len(bin1))
 
 def proper_key(key, klen):
-    ckey = "" # Cipher key
+    ckey = ""
     if len(key) < klen:
         lmulti = math.floor(klen/len(key))
         lmod = klen % len(key)
