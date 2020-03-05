@@ -107,7 +107,7 @@ def int_to_binary(inte, nbits = 0):
     return bin(inte)[2:].zfill(nbits)
 
 def byte_to_binary(byt):
-    return int_to_binary(int.from_bytes(byt, byteorder='big'))
+    return int_to_binary(int.from_bytes(byt, byteorder='big'), len(byt)*8)
 
 def binary_to_byte(bin):
     return int(bin, 2).to_bytes(len(bin) // 8, byteorder='big')
