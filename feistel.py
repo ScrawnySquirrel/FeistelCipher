@@ -31,10 +31,13 @@ def main(argv):
 
     if args.encrypt is True:
         ct = feistel_encrypt(string_to_binary(txt), string_to_binary(args.key), args.rounds)
+        if args.output is not None:
             output_fp(binary_to_byte(ct), out_file)
+        else:
+            sys.stdout.buffer.write(binary_to_byte(ct))
     elif args.decrypt is True:
         pt = feistel_decrypt(byte_to_binary(txt), string_to_binary(args.key), args.rounds)
-        output_fp(binary_to_string(pt), out_file)
+        output_fp(binary_to_string(pt).rstrip(), out_file)
 
 def output_fp(msg, ofile = None, fp_out = False):
     """
