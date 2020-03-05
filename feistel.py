@@ -15,10 +15,10 @@ def main(argv):
     parser.add_argument('-c', '--ciphermode', help='encryption mode', default="ECB")
     parser.add_argument('-r', '--rounds', help='number of rounds to run', type=int, default=8)
     inputmethod = parser.add_mutually_exclusive_group(required=True)
-    inputmethod.add_argument('-t', '--text', help='the plaintext to encrypt')
+    inputmethod.add_argument('-t', '--text', help='plaintext to encrypt')
     inputmethod.add_argument('-i', '--input', help='name of the input file')
     parser.add_argument('-o', '--output', help='name of the output file')
-    parser.add_argument('-k', '--key', help='the decryption key', required=True)
+    parser.add_argument('-k', '--key', help='encryption key', required=True)
     args = parser.parse_args()
 
     # Input handler
