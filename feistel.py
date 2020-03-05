@@ -37,8 +37,6 @@ def main(argv):
     elif args.decrypt is True:
         if args.text is not None:
             txt = binascii.a2b_base64(txt)
-        elif args.input is not None:
-            output_fp(binary_to_byte(ct), out_file)
         pt = feistel_decrypt(byte_to_binary(txt), string_to_binary(args.key), args.rounds)
         output_fp(binary_to_string(pt), out_file)
 
