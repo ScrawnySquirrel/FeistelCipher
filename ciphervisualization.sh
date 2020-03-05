@@ -5,9 +5,10 @@ if [[ -z $1 || -z $2 || -z $3 ]]; then
   exit
 fi
 
-infile=$(basename -- "$1")
-extension="${infile##*.}"
-filename="${infile%.*}"
+infile=$1
+infilename=$(basename -- "$1")
+extension="${infilename##*.}"
+filename="${infilename%.*}"
 ciphermode="$2"
 key="$3"
 outfile="${filename}${ciphermode}.${extension}"
