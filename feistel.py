@@ -13,8 +13,9 @@ def main(argv):
     mode.add_argument('-d', '--decrypt', help='decrypt a ciphertext', action='store_true')
     parser.add_argument('-c', '--ciphermode', help='encryption mode', default="ECB")
     parser.add_argument('-r', '--rounds', help='number of rounds to run', type=int, default=8)
-    parser.add_argument('-t', '--text', help='the plaintext to encrypt')
-    parser.add_argument('-i', '--input', help='name of the input file')
+    inputmethod = parser.add_mutually_exclusive_group(required=True)
+    inputmethod.add_argument('-t', '--text', help='the plaintext to encrypt')
+    inputmethod.add_argument('-i', '--input', help='name of the input file')
     parser.add_argument('-o', '--output', help='name of the output file')
     parser.add_argument('-k', '--key', help='the decryption key', required=True)
     args = parser.parse_args()
@@ -31,7 +32,7 @@ def main(argv):
     if args.encrypt is True:
         ct = feistel_encrypt(string_to_binary(txt), string_to_binary(args.key), args.rounds)
         if args.text is not None:
-            print(str(binascii.b2a_base64(binary_to_byte(ct)))[2:-3])
+            output_fp(str(binascii.b2a_base64(binary_to_byte(ct)))[2:-3], out_file)
         elif args.input is not None:
             output_fp(binary_to_byte(ct), out_file)
     elif args.decrypt is True:
