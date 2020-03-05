@@ -164,7 +164,7 @@ def proper_key(key, klen):
         ckey = key
     return ckey
 
-def feistel_function(ri, key, round):
+def feistel_function(ri, key, round=1):
     """
     The Feistel round function.
 
