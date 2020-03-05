@@ -4,6 +4,7 @@ import sys
 import argparse
 import binascii
 import math
+import mimetypes
 
 def main(argv):
     # Define script description and the arugment list
@@ -22,9 +23,13 @@ def main(argv):
 
     # Input handler
     if args.text is not None:
-        txt = args.text
+        txt = string_to_binary(args.text)
     elif args.input is not None:
-        txt = open(args.input, "r" if args.encrypt else "rb").read()
+        mime = mimetypes.guess_type(args.input)
+        if mime[0] is None:
+            txt = byte_to_binary(open(args.input, "rb").read())
+        elif "text" in mime[0]:
+            txt = string_to_binary(open(args.input, "r").read())
 
     # Output handler
     out_file = None
@@ -33,13 +38,13 @@ def main(argv):
 
     # Encrypt/decrypt logic
     if args.encrypt is True:
-        ct = feistel_encrypt(string_to_binary(txt), string_to_binary(args.key), args.rounds)
+        ct = feistel_encrypt(txt, string_to_binary(args.key), args.rounds)
         if args.output is not None:
             output_fp(binary_to_byte(ct), out_file)
         else:
             sys.stdout.buffer.write(binary_to_byte(ct))
     elif args.decrypt is True:
-        pt = feistel_decrypt(byte_to_binary(txt), string_to_binary(args.key), args.rounds)
+        pt = feistel_decrypt(txt, string_to_binary(args.key), args.rounds)
         output_fp(binary_to_string(pt).rstrip(), out_file)
 
 def output_fp(msg, ofile = None, fp_out = False):
