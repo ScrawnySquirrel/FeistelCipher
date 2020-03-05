@@ -26,7 +26,7 @@ def main(argv):
         txt = string_to_binary(args.text)
     elif args.input is not None:
         mime = mimetypes.guess_type(args.input)
-        if mime[0] is None:
+        if mime[0] is None or "text" not in mime[0]:
             txt = byte_to_binary(open(args.input, "rb").read())
         elif "text" in mime[0]:
             txt = string_to_binary(open(args.input, "r").read())
