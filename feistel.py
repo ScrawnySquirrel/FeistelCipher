@@ -20,15 +20,18 @@ def main(argv):
     parser.add_argument('-k', '--key', help='the decryption key', required=True)
     args = parser.parse_args()
 
+    # Input handler
     if args.text is not None:
         txt = args.text
     elif args.input is not None:
         txt = open(args.input, "r" if args.encrypt else "rb").read()
 
+    # Output handler
     out_file = None
     if args.output is not None:
         out_file = open(args.output, "wb" if args.encrypt else "w")
 
+    # Encrypt/decrypt logic
     if args.encrypt is True:
         ct = feistel_encrypt(string_to_binary(txt), string_to_binary(args.key), args.rounds)
         if args.output is not None:
@@ -56,6 +59,11 @@ def output_fp(msg, ofile = None, fp_out = False):
     return
 
 def split_half(str):
+    """
+    Split a string in half and return tuple.
+
+    str - the string to split
+    """
     split_pairs = str[:len(str)//2], str[len(str)//2:]
     return split_pairs
 
@@ -110,9 +118,19 @@ def int_to_binary(inte, nbits = 0):
     return bin(inte)[2:].zfill(nbits)
 
 def byte_to_binary(byt):
+    """
+    Return a byte converted binary.
+
+    byt - the byte to convert
+    """
     return int_to_binary(int.from_bytes(byt, byteorder='big'), len(byt)*8)
 
 def binary_to_byte(bin):
+    """
+    Return a binary converted byte.
+
+    bin - the binary to convert
+    """
     return int(bin, 2).to_bytes(len(bin) // 8, byteorder='big')
 
 def xor_compare(bin1, bin2):
@@ -124,6 +142,12 @@ def xor_compare(bin1, bin2):
     return '{0:0{1}b}'.format(int(bin1,2) ^ int(bin2, 2), len(bin1))
 
 def proper_key(key, klen):
+    """
+    Format the provided key to specific length.
+
+    key - the base encryption key
+    klen - the desired key length
+    """
     ckey = ""
     if len(key) < klen:
         lmulti = math.floor(klen/len(key))
@@ -136,10 +160,24 @@ def proper_key(key, klen):
     return ckey
 
 def feistel_function(ri, key, round):
+    """
+    The Feistel round function.
+
+    ri - the right-hand value
+    key - the encryption key
+    round - the nth round of the operation
+    """
     max_size = int("1"*len(ri), 2)
     return int_to_binary(pow(binary_to_int(ri) * binary_to_int(key), round) % max_size, len(ri))
 
 def feistel_encrypt(pt_bin, key, rounds):
+    """
+    Perform Feistel cipher encryption.
+
+    pt_bin - the plaintext binary
+    key - the encryption key
+    rounds - the number of rounds to run
+    """
     enc_pairs = list(split_half(pt_bin))
     enc_key = proper_key(key, len(enc_pairs[0]))
     for i in range(1,rounds+1):
@@ -147,6 +185,13 @@ def feistel_encrypt(pt_bin, key, rounds):
     return ''.join(enc_pairs)
 
 def feistel_decrypt(ct_bin, key, rounds):
+    """
+    Perform Feistel cipher decryption.
+
+    ct_bin - the ciphertext binary
+    key - the encryption key
+    rounds - the number of rounds to run
+    """
     dec_pairs = list(split_half(ct_bin))
     dec_key = proper_key(key, len(dec_pairs[0]))
     for i in reversed(range(1, rounds+1)):
