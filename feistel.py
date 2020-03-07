@@ -32,7 +32,7 @@ def main(argv):
     if args.text is not None:
         byte_txt = bytes(args.text, 'utf-8')
         txt = [byte_to_binary(byte_txt[i:i+args.block]) for i in range(0, len(byte_txt), args.block)]
-    if args.input is not None:
+    elif args.input is not None:
         with open(args.input, "rb") as infile:
             while True:
                 data = infile.read(args.block)
