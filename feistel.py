@@ -10,10 +10,10 @@ from itertools import repeat
 def main(argv):
     # Define script description and the arugment list
     parser = argparse.ArgumentParser(description='Encrypt and decrypt Feistel Cipher.')
-    mode = parser.add_mutually_exclusive_group(required=True)
-    mode.add_argument('-e', '--encrypt', help='encrypt a plaintext', action='store_true')
-    mode.add_argument('-d', '--decrypt', help='decrypt a ciphertext', action='store_true')
-    parser.add_argument('-c', '--ciphermode', help='encryption mode', default="ECB")
+    proccess = parser.add_mutually_exclusive_group(required=True)
+    proccess.add_argument('-e', '--encrypt', help='encrypt a plaintext', action='store_true')
+    proccess.add_argument('-d', '--decrypt', help='decrypt a ciphertext', action='store_true')
+    parser.add_argument('-m', '--mode', help='encryption mode', default="ecb", choices=['ecb', 'cbc', 'ctr'])
     parser.add_argument('-r', '--rounds', help='number of rounds to run', type=int, default=8)
     parser.add_argument('-b', '--block', help='block size for cipher', type=int, default=256)
     inputmethod = parser.add_mutually_exclusive_group(required=True)
