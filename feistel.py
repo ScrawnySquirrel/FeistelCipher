@@ -25,6 +25,7 @@ def main(argv):
     parser.add_argument('-k', '--key', help='encryption key', required=True)
     args = parser.parse_args()
 
+    # Input data
     txt = []
     chunk_size = 256
     if args.input is not None:
@@ -35,10 +36,7 @@ def main(argv):
                     break
                 txt.append(byte_to_binary(data))
 
-    outfile = None
-    if args.output is not None:
-        outfile = open(args.output, "wb")
-
+    # Encryption/Decryption
     results = ""
     if args.encrypt is True:
         with multiprocessing.Pool() as p:
@@ -47,8 +45,17 @@ def main(argv):
         with multiprocessing.Pool() as p:
             results = p.starmap(feistel_decrypt, zip(txt, repeat(string_to_binary(args.key)), repeat(args.rounds)))
 
-    for block in results:
-        output_fp(binary_to_byte(block), outfile)
+    # Output data
+    outfile = None
+    if args.output is not None:
+        outfile = open(args.output, "wb")
+        for block in results:
+            output_fp(binary_to_byte(block), outfile)
+    else:
+        outmsg = ""
+        for block in results:
+            outmsg += binary_to_string(block)
+        output_fp(outmsg)
 
 def output_fp(msg, ofile = None, fp_out = False):
     """
