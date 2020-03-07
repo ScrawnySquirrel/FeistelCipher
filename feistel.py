@@ -4,11 +4,8 @@ import sys
 import argparse
 import binascii
 import math
-import mimetypes
 import multiprocessing
-from itertools import product
 from itertools import repeat
-from functools import partial
 
 def main(argv):
     # Define script description and the arugment list
