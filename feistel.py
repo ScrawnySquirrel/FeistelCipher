@@ -19,7 +19,7 @@ def main(argv):
     parser.add_argument('-c', '--ciphermode', help='encryption mode', default="ECB")
     parser.add_argument('-r', '--rounds', help='number of rounds to run', type=int, default=8)
     inputmethod = parser.add_mutually_exclusive_group(required=True)
-    # inputmethod.add_argument('-t', '--text', help='plaintext to encrypt')
+    inputmethod.add_argument('-t', '--text', help='plaintext to encrypt')
     inputmethod.add_argument('-i', '--input', help='name of the input file')
     parser.add_argument('-o', '--output', help='name of the output file')
     parser.add_argument('-k', '--key', help='encryption key', required=True)
@@ -27,11 +27,13 @@ def main(argv):
 
     # Input data
     txt = []
-    chunk_size = 256
+    if args.text is not None:
+        byte_txt = bytes(args.text, 'utf-8')
+        txt = [byte_to_binary(byte_txt[i:i+args.block]) for i in range(0, len(byte_txt), args.block)]
     if args.input is not None:
         with open(args.input, "rb") as infile:
             while True:
-                data = infile.read(chunk_size)
+                data = infile.read(args.block)
                 if not data:
                     break
                 txt.append(byte_to_binary(data))
