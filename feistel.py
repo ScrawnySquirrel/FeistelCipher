@@ -177,6 +177,15 @@ def proper_key(key, klen):
         ckey = key
     return ckey
 
+def generate_random_binary(length):
+    """
+    Return a randomly generated binary string of size length.
+
+    length - the length of the binary string to generate
+    """
+    key = [str(random.randint(0,1)) for x in range(length)]
+    return "".join(key)
+
 def feistel_function(ri, key, round=1):
     """
     The Feistel round function.
