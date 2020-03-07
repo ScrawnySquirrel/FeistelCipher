@@ -44,10 +44,10 @@ def main(argv):
     results = ""
     if args.encrypt is True:
         with multiprocessing.Pool() as p:
-            results = p.starmap(feistel_encrypt, zip(txt, repeat(string_to_binary(args.key)), repeat(args.rounds)))
+            results = p.starmap(ecb_encrypt, zip(txt, repeat(string_to_binary(args.key)), repeat(args.rounds)))
     elif args.decrypt is True:
         with multiprocessing.Pool() as p:
-            results = p.starmap(feistel_decrypt, zip(txt, repeat(string_to_binary(args.key)), repeat(args.rounds)))
+            results = p.starmap(ecb_decrypt, zip(txt, repeat(string_to_binary(args.key)), repeat(args.rounds)))
 
     # Output data
     outfile = None
@@ -188,7 +188,7 @@ def feistel_function(ri, key, round=1):
     max_size = int("1"*len(ri), 2)
     return int_to_binary(pow(binary_to_int(ri) * binary_to_int(key), round) % max_size, len(ri))
 
-def feistel_encrypt(pt_bin, key, rounds):
+def ecb_encrypt(pt_bin, key, rounds):
     """
     Perform Feistel cipher encryption.
 
@@ -202,7 +202,7 @@ def feistel_encrypt(pt_bin, key, rounds):
         enc_pairs[0],  enc_pairs[1] = enc_pairs[1], xor_compare(enc_pairs[0], feistel_function(enc_pairs[1], enc_key, i))
     return ''.join(enc_pairs)
 
-def feistel_decrypt(ct_bin, key, rounds):
+def ecb_decrypt(ct_bin, key, rounds):
     """
     Perform Feistel cipher decryption.
 
