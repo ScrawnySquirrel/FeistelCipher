@@ -61,8 +61,7 @@ def main(argv):
     else:
         outmsg = ""
         for block in results:
-            outmsg += binary_to_string(block)
-        output_fp(outmsg)
+            sys.stdout.buffer.write(binary_to_byte(block))
 
 def output_fp(msg, ofile = None, fp_out = False):
     """
