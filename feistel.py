@@ -15,37 +15,34 @@ def main(argv):
     parser.add_argument('-c', '--ciphermode', help='encryption mode', default="ECB")
     parser.add_argument('-r', '--rounds', help='number of rounds to run', type=int, default=8)
     inputmethod = parser.add_mutually_exclusive_group(required=True)
-    inputmethod.add_argument('-t', '--text', help='plaintext to encrypt')
+    # inputmethod.add_argument('-t', '--text', help='plaintext to encrypt')
     inputmethod.add_argument('-i', '--input', help='name of the input file')
     parser.add_argument('-o', '--output', help='name of the output file')
     parser.add_argument('-k', '--key', help='encryption key', required=True)
     args = parser.parse_args()
 
-    # Input handler
-    if args.text is not None:
-        txt = string_to_binary(args.text)
-    elif args.input is not None:
-        mime = mimetypes.guess_type(args.input)
-        if mime[0] is None or "text" not in mime[0]:
-            txt = byte_to_binary(open(args.input, "rb").read())
-        elif "text" in mime[0]:
-            txt = string_to_binary(open(args.input, "r").read())
+    txt = []
+    chunk_size = 256
+    if args.input is not None:
+        with open(args.input, "rb") as infile:
+            while True:
+                data = infile.read(chunk_size)
+                if not data:
+                    break
+                txt.append(data)
 
-    # Output handler
-    out_file = None
+    outfile = None
     if args.output is not None:
-        out_file = open(args.output, "wb" if args.encrypt else "w")
+        outfile = open(args.output, "wb")
 
-    # Encrypt/decrypt logic
     if args.encrypt is True:
-        ct = feistel_encrypt(txt, string_to_binary(args.key), args.rounds)
-        if args.output is not None:
-            output_fp(binary_to_byte(ct), out_file)
-        else:
-            sys.stdout.buffer.write(binary_to_byte(ct))
+        for block in txt:
+            ct = feistel_encrypt(byte_to_binary(block), string_to_binary(args.key), args.rounds)
+            output_fp(binary_to_byte(ct), outfile)
     elif args.decrypt is True:
-        pt = feistel_decrypt(txt, string_to_binary(args.key), args.rounds)
-        output_fp(binary_to_string(pt).rstrip(), out_file)
+        for block in txt:
+            pt = feistel_decrypt(byte_to_binary(block), string_to_binary(args.key), args.rounds)
+            output_fp(binary_to_byte(pt), outfile)
 
 def output_fp(msg, ofile = None, fp_out = False):
     """
