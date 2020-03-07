@@ -26,6 +26,10 @@ def main(argv):
     parser.add_argument('-k', '--key', help='encryption key', required=True)
     args = parser.parse_args()
 
+    if args.text is not None and args.decrypt is True:
+        parser.error("argument -d/--decrypt: not allowed with argument -t/--text")
+        exit()
+
     # Input data
     txt = []
     if args.text is not None:
