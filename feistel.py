@@ -5,6 +5,10 @@ import argparse
 import binascii
 import math
 import mimetypes
+import multiprocessing
+from itertools import product
+from itertools import repeat
+from functools import partial
 
 def main(argv):
     # Define script description and the arugment list
@@ -29,20 +33,22 @@ def main(argv):
                 data = infile.read(chunk_size)
                 if not data:
                     break
-                txt.append(data)
+                txt.append(byte_to_binary(data))
 
     outfile = None
     if args.output is not None:
         outfile = open(args.output, "wb")
 
+    results = ""
     if args.encrypt is True:
-        for block in txt:
-            ct = feistel_encrypt(byte_to_binary(block), string_to_binary(args.key), args.rounds)
-            output_fp(binary_to_byte(ct), outfile)
+        with multiprocessing.Pool() as p:
+            results = p.starmap(feistel_encrypt, zip(txt, repeat(string_to_binary(args.key)), repeat(args.rounds)))
     elif args.decrypt is True:
-        for block in txt:
-            pt = feistel_decrypt(byte_to_binary(block), string_to_binary(args.key), args.rounds)
-            output_fp(binary_to_byte(pt), outfile)
+        with multiprocessing.Pool() as p:
+            results = p.starmap(feistel_decrypt, zip(txt, repeat(string_to_binary(args.key)), repeat(args.rounds)))
+
+    for block in results:
+        output_fp(binary_to_byte(block), outfile)
 
 def output_fp(msg, ofile = None, fp_out = False):
     """
