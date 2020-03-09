@@ -248,5 +248,8 @@ def cbc_encrypt(pt_bin_list, key, rounds):
             enc_result.append(ctext)
     return enc_result
 
+def cbc_decrypt(ct_bin, key, rounds):
+    return
+
 if __name__ == "__main__":
     main(sys.argv[1:])
