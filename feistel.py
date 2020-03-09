@@ -154,6 +154,7 @@ def binary_to_byte(bin):
 def xor_compare(bin1, bin2):
     """
     Return an XOR comparison of two binary strings.
+    The XOR'd binary string is padded to the first string.
 
     bin1, bin2 - the binaries to compare
     """
