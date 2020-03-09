@@ -46,11 +46,22 @@ def main(argv):
     # Encryption/Decryption
     results = ""
     if args.encrypt is True:
-        with multiprocessing.Pool() as p:
-            results = p.starmap(ecb_encrypt, zip(txt, repeat(string_to_binary(args.key)), repeat(args.rounds)))
+        if "ecb" in args.mode:
+            with multiprocessing.Pool() as p:
+                results = p.starmap(ecb_encrypt, zip(txt, repeat(bin_key), repeat(rnd)))
+        elif "cbc" in args.mode:
+            print("CBC Mode")
+            results = cbc_encrypt(txt,bin_key,rnd)
+        elif "ctr" in args.mode:
+            print("CTR Mode")
     elif args.decrypt is True:
-        with multiprocessing.Pool() as p:
-            results = p.starmap(ecb_decrypt, zip(txt, repeat(string_to_binary(args.key)), repeat(args.rounds)))
+        if "ecb" in args.mode:
+            with multiprocessing.Pool() as p:
+                results = p.starmap(ecb_decrypt, zip(txt, repeat(bin_key), repeat(rnd)))
+        elif "cbc" in args.mode:
+            print("CBC Mode")
+        elif "ctr" in args.mode:
+            print("CTR Mode")
 
     # Output data
     outfile = None
