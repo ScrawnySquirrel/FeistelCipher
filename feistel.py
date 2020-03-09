@@ -6,6 +6,7 @@ import binascii
 import math
 import multiprocessing
 from itertools import repeat
+import random
 
 def main(argv):
     # Define script description and the arugment list
