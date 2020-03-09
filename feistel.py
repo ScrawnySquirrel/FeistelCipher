@@ -28,6 +28,8 @@ def main(argv):
         exit()
 
     # Input data
+    bin_key = string_to_binary(args.key)
+    rnd = args.rounds
     txt = []
     if args.text is not None:
         byte_txt = bytes(args.text, 'utf-8')
