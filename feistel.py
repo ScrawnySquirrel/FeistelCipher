@@ -254,8 +254,8 @@ def cbc_encrypt(pt_bin_list, key, rounds):
         ctext = ""
         ctext = feistel_function(xor_compare(ivector,msg[0]),key,i)
         enc_result.append(ctext)
-        for pt_block in msg[1:]:
-            ctext = feistel_function(xor_compare(ivector,pt_block),key,i) # ERROR WRONG LENGTH RETURN HERE
+        for j in range(1,len(msg)):
+            ctext = feistel_function(xor_compare(enc_result[j-1],msg[j]),key,i)
             enc_result.append(ctext)
     return enc_result
 
