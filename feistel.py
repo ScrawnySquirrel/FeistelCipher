@@ -229,5 +229,24 @@ def ecb_decrypt(ct_bin, key, rounds):
         dec_pairs[0],  dec_pairs[1] = xor_compare(dec_pairs[1], feistel_function(dec_pairs[0], dec_key, i)), dec_pairs[0]
     return ''.join(dec_pairs)
 
+def cbc_encrypt(pt_bin_list, key, rounds):
+    ivector = generate_random_binary(len(pt_bin_list[0])) # Initialization Vector
+    enc_result = []
+    msg = []
+
+    for i in range(1, rounds+1):
+        if i is 1:
+            msg = pt_bin_list
+        else:
+            msg = enc_result.copy()
+            enc_result.clear()
+        ctext = ""
+        ctext = feistel_function(xor_compare(ivector,msg[0]),key,i)
+        enc_result.append(ctext)
+        for pt_block in msg[1:]:
+            ctext = feistel_function(xor_compare(ivector,pt_block),key,i) # ERROR WRONG LENGTH RETURN HERE
+            enc_result.append(ctext)
+    return enc_result
+
 if __name__ == "__main__":
     main(sys.argv[1:])
