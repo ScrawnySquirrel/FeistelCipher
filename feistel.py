@@ -54,6 +54,7 @@ def main(argv):
             results = cbc_encrypt(txt,bin_key,rnd,args.block)
         elif "ctr" in args.mode:
             print("CTR Mode")
+            results = ctr_encrypt()
     elif args.decrypt is True:
         if "ecb" in args.mode:
             with multiprocessing.Pool() as p:
@@ -63,6 +64,7 @@ def main(argv):
             results = cbc_decrypt(txt,bin_key,rnd)
         elif "ctr" in args.mode:
             print("CTR Mode")
+            results = ctr_decrypt()
 
     # Output data
     outfile = None
@@ -264,6 +266,12 @@ def cbc_decrypt(ct_bin_list, key, rounds):
     for j in range(1, len(msg)):
         dec_result.append(xor_compare(ecb_decrypt(msg[j],key, rounds),msg[j-1]))
     return dec_result
+
+def ctr_encrypt():
+    return
+
+def ctr_decrypt():
+    return
 
 if __name__ == "__main__":
     main(sys.argv[1:])
