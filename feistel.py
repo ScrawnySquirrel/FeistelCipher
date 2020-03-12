@@ -240,23 +240,16 @@ def ecb_decrypt(ct_bin, key, rounds=2):
         dec_pairs[0],  dec_pairs[1] = xor_compare(dec_pairs[1], feistel_function(dec_pairs[0], dec_key, i)), dec_pairs[0]
     return ''.join(dec_pairs)
 
-def cbc_encrypt(pt_bin_list, key, rounds):
-    ivector = generate_random_binary(len(pt_bin_list[0])) # Initialization Vector
+def cbc_encrypt(pt_bin_list, key, rounds, bsize):
+    ivector = generate_random_binary(bsize*8) # Initialization Vector
     enc_result = []
     msg = []
 
-    for i in range(1, rounds+1):
-        if i is 1:
-            msg = pt_bin_list
-        else:
-            msg = enc_result.copy()
-            enc_result.clear()
-        ctext = ""
-        ctext = feistel_function(xor_compare(ivector,msg[0]),key,i)
-        enc_result.append(ctext)
-        for j in range(1,len(msg)):
-            ctext = feistel_function(xor_compare(enc_result[j-1],msg[j]),key,i)
-            enc_result.append(ctext)
+    msg = pt_bin_list
+    enc_result.append(ecb_encrypt(xor_compare(msg[0],ivector),key,rounds))
+    for j in range(1,len(msg)):
+        enc_result.append(ecb_encrypt(xor_compare(msg[j], enc_result[j-1]),key,rounds))
+    enc_result.insert(0,ivector) # Store IV to the start of ciphertext
     return enc_result
 
 def cbc_decrypt(ct_bin, key, rounds):
