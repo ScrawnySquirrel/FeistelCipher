@@ -51,7 +51,7 @@ def main(argv):
                 results = p.starmap(ecb_encrypt, zip(txt, repeat(bin_key), repeat(rnd)))
         elif "cbc" in args.mode:
             print("CBC Mode")
-            results = cbc_encrypt(txt,bin_key,rnd)
+            results = cbc_encrypt(txt,bin_key,rnd,args.block)
         elif "ctr" in args.mode:
             print("CTR Mode")
     elif args.decrypt is True:
@@ -60,6 +60,7 @@ def main(argv):
                 results = p.starmap(ecb_decrypt, zip(txt, repeat(bin_key), repeat(rnd)))
         elif "cbc" in args.mode:
             print("CBC Mode")
+            results = cbc_decrypt(txt,bin_key,rnd)
         elif "ctr" in args.mode:
             print("CTR Mode")
 
