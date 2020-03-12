@@ -252,8 +252,17 @@ def cbc_encrypt(pt_bin_list, key, rounds, bsize):
     enc_result.insert(0,ivector) # Store IV to the start of ciphertext
     return enc_result
 
-def cbc_decrypt(ct_bin, key, rounds):
-    return
+def cbc_decrypt(ct_bin_list, key, rounds):
+    ivector = ct_bin_list.pop(0)
+    dec_result = []
+    msg = []
+    ptext = ""
+
+    msg = ct_bin_list
+    dec_result.append(xor_compare(ecb_decrypt(msg[0],key, rounds),ivector))
+    for j in range(1, len(msg)):
+        dec_result.append(xor_compare(ecb_decrypt(msg[j],key, rounds),msg[j-1]))
+    return dec_result
 
 if __name__ == "__main__":
     main(sys.argv[1:])
