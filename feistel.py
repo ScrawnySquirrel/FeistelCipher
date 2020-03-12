@@ -212,7 +212,7 @@ def feistel_function(ri, key, round=1):
     max_size = int("1"*len(ri), 2)
     return int_to_binary(pow(binary_to_int(ri) * binary_to_int(key), round) % max_size, len(ri))
 
-def ecb_encrypt(pt_bin, key, rounds):
+def ecb_encrypt(pt_bin, key, rounds=2):
     """
     Perform Feistel cipher encryption.
 
@@ -226,7 +226,7 @@ def ecb_encrypt(pt_bin, key, rounds):
         enc_pairs[0],  enc_pairs[1] = enc_pairs[1], xor_compare(enc_pairs[0], feistel_function(enc_pairs[1], enc_key, i))
     return ''.join(enc_pairs)
 
-def ecb_decrypt(ct_bin, key, rounds):
+def ecb_decrypt(ct_bin, key, rounds=2):
     """
     Perform Feistel cipher decryption.
 
