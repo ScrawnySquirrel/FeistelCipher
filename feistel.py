@@ -6,6 +6,7 @@ import binascii
 import math
 import multiprocessing
 from itertools import repeat
+import random
 
 def main(argv):
     # Define script description and the arugment list
@@ -28,6 +29,8 @@ def main(argv):
         exit()
 
     # Input data
+    bin_key = string_to_binary(args.key)
+    rnd = args.rounds
     txt = []
     if args.text is not None:
         byte_txt = bytes(args.text, 'utf-8')
@@ -43,11 +46,23 @@ def main(argv):
     # Encryption/Decryption
     results = ""
     if args.encrypt is True:
-        with multiprocessing.Pool() as p:
-            results = p.starmap(feistel_encrypt, zip(txt, repeat(string_to_binary(args.key)), repeat(args.rounds)))
+        if "ecb" in args.mode:
+            with multiprocessing.Pool() as p:
+                results = p.starmap(ecb_encrypt, zip(txt, repeat(bin_key), repeat(rnd)))
+        elif "cbc" in args.mode:
+            print("CBC Mode")
+            results = cbc_encrypt(txt,bin_key,rnd,args.block)
+        elif "ctr" in args.mode:
+            print("CTR Mode")
     elif args.decrypt is True:
-        with multiprocessing.Pool() as p:
-            results = p.starmap(feistel_decrypt, zip(txt, repeat(string_to_binary(args.key)), repeat(args.rounds)))
+        if "ecb" in args.mode:
+            with multiprocessing.Pool() as p:
+                results = p.starmap(ecb_decrypt, zip(txt, repeat(bin_key), repeat(rnd)))
+        elif "cbc" in args.mode:
+            print("CBC Mode")
+            results = cbc_decrypt(txt,bin_key,rnd)
+        elif "ctr" in args.mode:
+            print("CTR Mode")
 
     # Output data
     outfile = None
@@ -154,10 +169,11 @@ def binary_to_byte(bin):
 def xor_compare(bin1, bin2):
     """
     Return an XOR comparison of two binary strings.
+    The XOR'd binary string is padded to the first string.
 
     bin1, bin2 - the binaries to compare
     """
-    return '{0:0{1}b}'.format(int(bin1,2) ^ int(bin2, 2), len(bin1))
+    return '{0:0{1}b}'.format(int(bin1,2) ^ int(proper_key(bin2, len(bin1)), 2), len(bin1))
 
 def proper_key(key, klen):
     """
@@ -177,6 +193,15 @@ def proper_key(key, klen):
         ckey = key
     return ckey
 
+def generate_random_binary(length):
+    """
+    Return a randomly generated binary string of size length.
+
+    length - the length of the binary string to generate
+    """
+    key = [str(random.randint(0,1)) for x in range(length)]
+    return "".join(key)
+
 def feistel_function(ri, key, round=1):
     """
     The Feistel round function.
@@ -188,7 +213,7 @@ def feistel_function(ri, key, round=1):
     max_size = int("1"*len(ri), 2)
     return int_to_binary(pow(binary_to_int(ri) * binary_to_int(key), round) % max_size, len(ri))
 
-def feistel_encrypt(pt_bin, key, rounds):
+def ecb_encrypt(pt_bin, key, rounds=2):
     """
     Perform Feistel cipher encryption.
 
@@ -202,7 +227,7 @@ def feistel_encrypt(pt_bin, key, rounds):
         enc_pairs[0],  enc_pairs[1] = enc_pairs[1], xor_compare(enc_pairs[0], feistel_function(enc_pairs[1], enc_key, i))
     return ''.join(enc_pairs)
 
-def feistel_decrypt(ct_bin, key, rounds):
+def ecb_decrypt(ct_bin, key, rounds=2):
     """
     Perform Feistel cipher decryption.
 
@@ -215,6 +240,30 @@ def feistel_decrypt(ct_bin, key, rounds):
     for i in reversed(range(1, rounds+1)):
         dec_pairs[0],  dec_pairs[1] = xor_compare(dec_pairs[1], feistel_function(dec_pairs[0], dec_key, i)), dec_pairs[0]
     return ''.join(dec_pairs)
+
+def cbc_encrypt(pt_bin_list, key, rounds, bsize):
+    ivector = generate_random_binary(bsize*8) # Initialization Vector
+    enc_result = []
+    msg = []
+
+    msg = pt_bin_list
+    enc_result.append(ecb_encrypt(xor_compare(msg[0],ivector),key,rounds))
+    for j in range(1,len(msg)):
+        enc_result.append(ecb_encrypt(xor_compare(msg[j], enc_result[j-1]),key,rounds))
+    enc_result.insert(0,ivector) # Store IV to the start of ciphertext
+    return enc_result
+
+def cbc_decrypt(ct_bin_list, key, rounds):
+    ivector = ct_bin_list.pop(0)
+    dec_result = []
+    msg = []
+    ptext = ""
+
+    msg = ct_bin_list
+    dec_result.append(xor_compare(ecb_decrypt(msg[0],key, rounds),ivector))
+    for j in range(1, len(msg)):
+        dec_result.append(xor_compare(ecb_decrypt(msg[j],key, rounds),msg[j-1]))
+    return dec_result
 
 if __name__ == "__main__":
     main(sys.argv[1:])
