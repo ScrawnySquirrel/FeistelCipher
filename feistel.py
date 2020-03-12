@@ -172,7 +172,7 @@ def xor_compare(bin1, bin2):
 
     bin1, bin2 - the binaries to compare
     """
-    return '{0:0{1}b}'.format(int(bin1,2) ^ int(bin2, 2), len(bin1))
+    return '{0:0{1}b}'.format(int(bin1,2) ^ int(proper_key(bin2, len(bin1)), 2), len(bin1))
 
 def proper_key(key, klen):
     """
