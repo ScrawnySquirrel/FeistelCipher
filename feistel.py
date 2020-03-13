@@ -275,31 +275,33 @@ def cbc_decrypt(ct_bin_list, key, rounds):
     return dec_result
 
 def ctr_encrypt(pt_bin_list, key, rounds):
-    nonce = generate_random_binary(len(pt_bin_list[0])-8) # Initialization Vector
-    counter = 0
-    enc_result = []
     msg = pt_bin_list
+    nonce = generate_random_binary(len(pt_bin_list[0])-8) # Initialization Vector
+    counter = range(0,len(msg))
+    enc_result = ""
 
-    for i in range(0,len(msg)):
-        ivcount = nonce + int_to_binary(i, 8)
-        x = feistel_encrypt(ivcount,key,rounds)
-        enc_result.append(xor_compare(msg[i],x))
+    with multiprocessing.Pool() as p:
+        enc_result = p.starmap(ctr_process, zip(msg, repeat(nonce), counter, repeat(key), repeat(rounds)))
 
     enc_result.insert(0,nonce+"00000000") # Store IV to the start of ciphertext
     return enc_result
 
 def ctr_decrypt(ct_bin_list, key, rounds):
-    nonce = ct_bin_list.pop(0)[:-8]
-    counter = 0
-    dec_result = []
     msg = ct_bin_list
+    nonce = msg.pop(0)[:-8]
+    counter = range(0,len(msg))
+    dec_result = ""
 
-    for i in range(0,len(msg)):
-        ivcount = nonce + int_to_binary(i, 8)
-        x = feistel_encrypt(ivcount,key,rounds)
-        dec_result.append(xor_compare(msg[i],x))
+    with multiprocessing.Pool() as p:
+        dec_result = p.starmap(ctr_process, zip(msg, repeat(nonce), counter, repeat(key), repeat(rounds)))
 
     return dec_result
+
+def ctr_process(msg, nonce, cnt, key, rounds):
+    ivcount = nonce + int_to_binary(cnt, 8)
+    x = feistel_encrypt(ivcount,key,rounds)
+    y = xor_compare(msg,x)
+    return y
 
 if __name__ == "__main__":
     main(sys.argv[1:])
