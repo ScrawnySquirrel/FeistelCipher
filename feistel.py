@@ -48,21 +48,19 @@ def main(argv):
     if args.encrypt is True:
         if "ecb" in args.mode:
             with multiprocessing.Pool() as p:
-                results = p.starmap(ecb_encrypt, zip(txt, repeat(bin_key), repeat(rnd)))
+                results = p.starmap(feistel_encrypt, zip(txt, repeat(bin_key), repeat(rnd)))
         elif "cbc" in args.mode:
-            print("CBC Mode")
             results = cbc_encrypt(txt,bin_key,rnd,args.block)
         elif "ctr" in args.mode:
-            print("CTR Mode")
+            results = ctr_encrypt(txt,bin_key,rnd)
     elif args.decrypt is True:
         if "ecb" in args.mode:
             with multiprocessing.Pool() as p:
-                results = p.starmap(ecb_decrypt, zip(txt, repeat(bin_key), repeat(rnd)))
+                results = p.starmap(feistel_decrypt, zip(txt, repeat(bin_key), repeat(rnd)))
         elif "cbc" in args.mode:
-            print("CBC Mode")
             results = cbc_decrypt(txt,bin_key,rnd)
         elif "ctr" in args.mode:
-            print("CTR Mode")
+            results = ctr_decrypt(txt,bin_key,rnd)
 
     # Output data
     outfile = None
@@ -202,7 +200,7 @@ def generate_random_binary(length):
     key = [str(random.randint(0,1)) for x in range(length)]
     return "".join(key)
 
-def feistel_function(ri, key, round=1):
+def round_function(ri, key, round=1):
     """
     The Feistel round function.
 
@@ -213,7 +211,7 @@ def feistel_function(ri, key, round=1):
     max_size = int("1"*len(ri), 2)
     return int_to_binary(pow(binary_to_int(ri) * binary_to_int(key), round) % max_size, len(ri))
 
-def ecb_encrypt(pt_bin, key, rounds=2):
+def feistel_encrypt(pt_bin, key, rounds=2):
     """
     Perform Feistel cipher encryption.
 
@@ -224,10 +222,10 @@ def ecb_encrypt(pt_bin, key, rounds=2):
     enc_pairs = list(split_half(pt_bin))
     enc_key = proper_key(key, len(enc_pairs[0]))
     for i in range(1,rounds+1):
-        enc_pairs[0],  enc_pairs[1] = enc_pairs[1], xor_compare(enc_pairs[0], feistel_function(enc_pairs[1], enc_key, i))
+        enc_pairs[0],  enc_pairs[1] = enc_pairs[1], xor_compare(enc_pairs[0], round_function(enc_pairs[1], enc_key, i))
     return ''.join(enc_pairs)
 
-def ecb_decrypt(ct_bin, key, rounds=2):
+def feistel_decrypt(ct_bin, key, rounds=2):
     """
     Perform Feistel cipher decryption.
 
@@ -238,31 +236,59 @@ def ecb_decrypt(ct_bin, key, rounds=2):
     dec_pairs = list(split_half(ct_bin))
     dec_key = proper_key(key, len(dec_pairs[0]))
     for i in reversed(range(1, rounds+1)):
-        dec_pairs[0],  dec_pairs[1] = xor_compare(dec_pairs[1], feistel_function(dec_pairs[0], dec_key, i)), dec_pairs[0]
+        dec_pairs[0],  dec_pairs[1] = xor_compare(dec_pairs[1], round_function(dec_pairs[0], dec_key, i)), dec_pairs[0]
     return ''.join(dec_pairs)
 
 def cbc_encrypt(pt_bin_list, key, rounds, bsize):
     ivector = generate_random_binary(bsize*8) # Initialization Vector
     enc_result = []
-    msg = []
-
     msg = pt_bin_list
-    enc_result.append(ecb_encrypt(xor_compare(msg[0],ivector),key,rounds))
-    for j in range(1,len(msg)):
-        enc_result.append(ecb_encrypt(xor_compare(msg[j], enc_result[j-1]),key,rounds))
+
+    enc_result.append(feistel_encrypt(xor_compare(msg[0],ivector),key,rounds))
+    if len(msg) > 1:
+        for j in range(1,len(msg)):
+            enc_result.append(feistel_encrypt(xor_compare(msg[j], enc_result[j-1]),key,rounds))
     enc_result.insert(0,ivector) # Store IV to the start of ciphertext
     return enc_result
 
 def cbc_decrypt(ct_bin_list, key, rounds):
     ivector = ct_bin_list.pop(0)
     dec_result = []
-    msg = []
-    ptext = ""
-
     msg = ct_bin_list
-    dec_result.append(xor_compare(ecb_decrypt(msg[0],key, rounds),ivector))
-    for j in range(1, len(msg)):
-        dec_result.append(xor_compare(ecb_decrypt(msg[j],key, rounds),msg[j-1]))
+
+    dec_result.append(xor_compare(feistel_decrypt(msg[0],key, rounds),ivector))
+    if len(msg) > 1:
+        for j in range(1, len(msg)):
+            dec_result.append(xor_compare(feistel_decrypt(msg[j],key, rounds),msg[j-1]))
+    return dec_result
+
+def ctr_encrypt(pt_bin_list, key, rounds):
+    nonce = generate_random_binary(len(pt_bin_list[0])-8) # Initialization Vector
+    # print(nonce)
+    counter = 0
+    enc_result = []
+    msg = pt_bin_list
+
+    for i in range(0,len(msg)):
+        ivcount = nonce + int_to_binary(i, 8)
+        x = feistel_encrypt(ivcount,key,rounds)
+        enc_result.append(xor_compare(msg[i],x))
+
+    enc_result.insert(0,nonce+"00000000") # Store IV to the start of ciphertext
+    return enc_result
+
+def ctr_decrypt(ct_bin_list, key, rounds):
+    nonce = ct_bin_list.pop(0)[:-8]
+    # print(nonce)
+    counter = 0
+    dec_result = []
+    msg = ct_bin_list
+
+    for i in range(0,len(msg)):
+        ivcount = nonce + int_to_binary(i, 8)
+        x = feistel_encrypt(ivcount,key,rounds)
+        dec_result.append(xor_compare(msg[i],x))
+
     return dec_result
 
 if __name__ == "__main__":
