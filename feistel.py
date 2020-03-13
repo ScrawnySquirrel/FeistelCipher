@@ -276,7 +276,6 @@ def cbc_decrypt(ct_bin_list, key, rounds):
 
 def ctr_encrypt(pt_bin_list, key, rounds):
     nonce = generate_random_binary(len(pt_bin_list[0])-8) # Initialization Vector
-    # print(nonce)
     counter = 0
     enc_result = []
     msg = pt_bin_list
@@ -291,7 +290,6 @@ def ctr_encrypt(pt_bin_list, key, rounds):
 
 def ctr_decrypt(ct_bin_list, key, rounds):
     nonce = ct_bin_list.pop(0)[:-8]
-    # print(nonce)
     counter = 0
     dec_result = []
     msg = ct_bin_list
