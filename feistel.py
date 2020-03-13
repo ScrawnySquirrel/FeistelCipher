@@ -47,16 +47,14 @@ def main(argv):
     results = ""
     if args.encrypt is True:
         if "ecb" in args.mode:
-            with multiprocessing.Pool() as p:
-                results = p.starmap(feistel_encrypt, zip(txt, repeat(bin_key), repeat(rnd)))
+            results = ecb_encrypt(txt,bin_key,rnd)
         elif "cbc" in args.mode:
             results = cbc_encrypt(txt,bin_key,rnd,args.block)
         elif "ctr" in args.mode:
             results = ctr_encrypt(txt,bin_key,rnd)
     elif args.decrypt is True:
         if "ecb" in args.mode:
-            with multiprocessing.Pool() as p:
-                results = p.starmap(feistel_decrypt, zip(txt, repeat(bin_key), repeat(rnd)))
+            results = ecb_decrypt(txt,bin_key,rnd)
         elif "cbc" in args.mode:
             results = cbc_decrypt(txt,bin_key,rnd)
         elif "ctr" in args.mode:
@@ -238,6 +236,20 @@ def feistel_decrypt(ct_bin, key, rounds=2):
     for i in reversed(range(1, rounds+1)):
         dec_pairs[0],  dec_pairs[1] = xor_compare(dec_pairs[1], round_function(dec_pairs[0], dec_key, i)), dec_pairs[0]
     return ''.join(dec_pairs)
+
+def ecb_encrypt(pt_bin_list, key, rounds):
+    enc_result = ""
+
+    with multiprocessing.Pool() as p:
+        enc_result = p.starmap(feistel_encrypt, zip(pt_bin_list, repeat(key), repeat(rounds)))
+    return enc_result
+
+def ecb_decrypt(ct_bin_list, key, rounds):
+    dec_result = ""
+
+    with multiprocessing.Pool() as p:
+        dec_result = p.starmap(feistel_decrypt, zip(ct_bin_list, repeat(key), repeat(rounds)))
+    return dec_result
 
 def cbc_encrypt(pt_bin_list, key, rounds, bsize):
     ivector = generate_random_binary(bsize*8) # Initialization Vector
