@@ -52,7 +52,7 @@ def main(argv):
         elif "cbc" in args.mode:
             results = cbc_encrypt(txt,bin_key,rnd,args.block)
         elif "ctr" in args.mode:
-            results = ctr_encrypt()
+            results = ctr_encrypt(txt,bin_key,rnd)
     elif args.decrypt is True:
         if "ecb" in args.mode:
             with multiprocessing.Pool() as p:
@@ -60,7 +60,7 @@ def main(argv):
         elif "cbc" in args.mode:
             results = cbc_decrypt(txt,bin_key,rnd)
         elif "ctr" in args.mode:
-            results = ctr_decrypt()
+            results = ctr_decrypt(txt,bin_key,rnd)
 
     # Output data
     outfile = None
@@ -263,11 +263,34 @@ def cbc_decrypt(ct_bin_list, key, rounds):
         dec_result.append(xor_compare(ecb_decrypt(msg[j],key, rounds),msg[j-1]))
     return dec_result
 
-def ctr_encrypt():
-    return
+def ctr_encrypt(pt_bin_list, key, rounds):
+    nonce = generate_random_binary(len(pt_bin_list[0])-8) # Initialization Vector
+    # print(nonce)
+    counter = 0
+    enc_result = []
+    msg = pt_bin_list
 
-def ctr_decrypt():
-    return
+    for i in range(0,len(msg)):
+        ivcount = nonce + int_to_binary(i, 8)
+        x = ecb_encrypt(ivcount,key,rounds)
+        enc_result.append(xor_compare(msg[i],x))
+
+    enc_result.insert(0,nonce+"00000000") # Store IV to the start of ciphertext
+    return enc_result
+
+def ctr_decrypt(ct_bin_list, key, rounds):
+    nonce = ct_bin_list.pop(0)[:-8]
+    # print(nonce)
+    counter = 0
+    dec_result = []
+    msg = ct_bin_list
+
+    for i in range(0,len(msg)):
+        ivcount = nonce + int_to_binary(i, 8)
+        x = ecb_encrypt(ivcount,key,rounds)
+        dec_result.append(xor_compare(msg[i],x))
+
+    return dec_result
 
 if __name__ == "__main__":
     main(sys.argv[1:])
