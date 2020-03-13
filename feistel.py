@@ -242,9 +242,8 @@ def ecb_decrypt(ct_bin, key, rounds=2):
 def cbc_encrypt(pt_bin_list, key, rounds, bsize):
     ivector = generate_random_binary(bsize*8) # Initialization Vector
     enc_result = []
-    msg = []
-
     msg = pt_bin_list
+
     enc_result.append(ecb_encrypt(xor_compare(msg[0],ivector),key,rounds))
     for j in range(1,len(msg)):
         enc_result.append(ecb_encrypt(xor_compare(msg[j], enc_result[j-1]),key,rounds))
@@ -254,10 +253,8 @@ def cbc_encrypt(pt_bin_list, key, rounds, bsize):
 def cbc_decrypt(ct_bin_list, key, rounds):
     ivector = ct_bin_list.pop(0)
     dec_result = []
-    msg = []
-    ptext = ""
-
     msg = ct_bin_list
+
     dec_result.append(xor_compare(ecb_decrypt(msg[0],key, rounds),ivector))
     for j in range(1, len(msg)):
         dec_result.append(xor_compare(ecb_decrypt(msg[j],key, rounds),msg[j-1]))
