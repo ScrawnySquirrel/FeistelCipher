@@ -244,9 +244,10 @@ def cbc_encrypt(pt_bin_list, key, rounds, bsize):
     enc_result = []
     msg = pt_bin_list
 
-    enc_result.append(ecb_encrypt(xor_compare(msg[0],ivector),key,rounds))
-    for j in range(1,len(msg)):
-        enc_result.append(ecb_encrypt(xor_compare(msg[j], enc_result[j-1]),key,rounds))
+    enc_result.append(feistel_encrypt(xor_compare(msg[0],ivector),key,rounds))
+    if len(msg) > 1:
+        for j in range(1,len(msg)):
+            enc_result.append(feistel_encrypt(xor_compare(msg[j], enc_result[j-1]),key,rounds))
     enc_result.insert(0,ivector) # Store IV to the start of ciphertext
     return enc_result
 
@@ -255,9 +256,10 @@ def cbc_decrypt(ct_bin_list, key, rounds):
     dec_result = []
     msg = ct_bin_list
 
-    dec_result.append(xor_compare(ecb_decrypt(msg[0],key, rounds),ivector))
-    for j in range(1, len(msg)):
-        dec_result.append(xor_compare(ecb_decrypt(msg[j],key, rounds),msg[j-1]))
+    dec_result.append(xor_compare(feistel_decrypt(msg[0],key, rounds),ivector))
+    if len(msg) > 1:
+        for j in range(1, len(msg)):
+            dec_result.append(xor_compare(feistel_decrypt(msg[j],key, rounds),msg[j-1]))
     return dec_result
 
 def ctr_encrypt(pt_bin_list, key, rounds):
