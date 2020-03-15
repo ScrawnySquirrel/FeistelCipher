@@ -268,10 +268,14 @@ def cbc_decrypt(ct_bin_list, key, rounds):
     dec_result = []
     msg = ct_bin_list
 
-    dec_result.append(xor_compare(feistel_decrypt(msg[0],key, rounds),ivector))
-    if len(msg) > 1:
-        for j in range(1, len(msg)):
-            dec_result.append(xor_compare(feistel_decrypt(msg[j],key, rounds),msg[j-1]))
+    with multiprocessing.Pool() as p:
+        x = p.starmap(feistel_decrypt, zip(msg, repeat(key), repeat(rounds)))
+
+    dec_result.append(xor_compare(x[0],ivector))
+    if len(x) > 1:
+        for j in range(1, len(x)):
+            dec_result.append(xor_compare(x[j],msg[j-1]))
+
     return dec_result
 
 def ctr_encrypt(pt_bin_list, key, rounds):
