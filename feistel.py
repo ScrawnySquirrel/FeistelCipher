@@ -287,7 +287,7 @@ def ctr_encrypt(pt_bin_list, key, rounds):
     with multiprocessing.Pool() as p:
         enc_result = p.starmap(ctr_process, zip(msg, repeat(nonce), counter, repeat(key), repeat(rounds)))
 
-    enc_result.insert(0,nonce+"00000000") # Store IV to the start of ciphertext
+    enc_result.insert(0,nonce+"00000000") # Store padded IV to the start of ciphertext
     return enc_result
 
 def ctr_decrypt(ct_bin_list, key, rounds):
