@@ -7,6 +7,7 @@ import math
 import multiprocessing
 from itertools import repeat
 import random
+import time
 
 def main(argv):
     # Define script description and the arugment list
@@ -308,4 +309,6 @@ def ctr_process(msg, nonce, cnt, key, rounds):
     return y
 
 if __name__ == "__main__":
+    start_time = time.time()
     main(sys.argv[1:])
+    print("--- %s seconds ---" % (time.time() - start_time))
