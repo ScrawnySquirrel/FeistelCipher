@@ -15,11 +15,23 @@ def split_half(str):
     return split_pairs
 
 def left_shift(key,shift):
+    """
+    Shift key string left and loopback the overflow bits.
+
+    key - the key to shift
+    shift - number of spaces to shift
+    """
     if shift > len(key):
         shift = shift % len(key)
     return key[shift:] + key[:shift]
 
 def right_shift(key,shift):
+    """
+    Shift key string right and loopback the overflow bits.
+
+    key - the key to shift
+    shift - number of spaces to shift
+    """
     if shift > len(key):
         shift = shift % len(key)
     return key[-shift:] + key[:-shift]
@@ -100,6 +112,13 @@ def feistel_decrypt(ct_bin, key, rounds=2):
     return ''.join(dec_pairs)
 
 def ecb_encrypt(pt_bin_list, keys, rounds):
+    """
+    Perform Feistel encryption using ECB mode.
+
+    pt_bin_list - list of plaintext blocks in binary
+    keys - list of subkeys
+    rounds - number of rounds to execute
+    """
     enc_result = ""
 
     with multiprocessing.Pool() as p:
@@ -107,6 +126,13 @@ def ecb_encrypt(pt_bin_list, keys, rounds):
     return enc_result
 
 def ecb_decrypt(ct_bin_list, keys, rounds):
+    """
+    Perform Feistel decryption using ECB mode.
+
+    ct_bin_list - list of ciphertext blocks in binary
+    keys - list of subkeys
+    rounds - number of rounds to execute
+    """
     dec_result = ""
 
     with multiprocessing.Pool() as p:
@@ -114,6 +140,13 @@ def ecb_decrypt(ct_bin_list, keys, rounds):
     return dec_result
 
 def cbc_encrypt(pt_bin_list, keys, rounds):
+    """
+    Perform Feistel encyption using CBC mode.
+
+    pt_bin_list - list of plaintext blocks in binary
+    keys - list of subkeys
+    rounds - number of rounds to execute
+    """
     bsize = len(pt_bin_list[0])
     ivector = generate_random_binary(bsize) # Initialization Vector
     enc_result = []
@@ -127,6 +160,13 @@ def cbc_encrypt(pt_bin_list, keys, rounds):
     return enc_result
 
 def cbc_decrypt(ct_bin_list, keys, rounds):
+    """
+    Perform Feistel decryption using CBC mode.
+
+    ct_bin_list - list of ciphertext blocks in binary
+    keys - list of subkeys
+    rounds - number of rounds to execute
+    """
     ivector = ct_bin_list.pop(0)
     dec_result = []
     msg = ct_bin_list
@@ -142,6 +182,13 @@ def cbc_decrypt(ct_bin_list, keys, rounds):
     return dec_result
 
 def ctr_encrypt(pt_bin_list, keys, rounds):
+    """
+    Perform Feistel encyption using CTR mode.
+
+    pt_bin_list - list of plaintext blocks in binary
+    keys - list of subkeys
+    rounds - number of rounds to execute
+    """
     msg = pt_bin_list
     nonce = generate_random_binary(len(pt_bin_list[0])-8) # Initialization Vector
     counter = range(0,len(msg))
@@ -154,6 +201,13 @@ def ctr_encrypt(pt_bin_list, keys, rounds):
     return enc_result
 
 def ctr_decrypt(ct_bin_list, keys, rounds):
+    """
+    Perform Feistel decryption using CTR mode.
+
+    ct_bin_list - list of ciphertext blocks in binary
+    keys - list of subkeys
+    rounds - number of rounds to execute
+    """
     msg = ct_bin_list
     nonce = msg.pop(0)[:-8]
     counter = range(0,len(msg))
@@ -165,6 +219,15 @@ def ctr_decrypt(ct_bin_list, keys, rounds):
     return dec_result
 
 def ctr_process(msg, nonce, cnt, key, rounds):
+    """
+    Perform encryption/decryption of a single block using CTR mode.
+
+    msg - message block
+    nonce - nonce
+    cnt - increment counter
+    key - encryption/decryption key
+    rounds - number of rounds to execute
+    """
     ivcount = nonce + bc.int_to_binary(cnt, 8)
     x = feistel_encrypt(ivcount,key,rounds)
     y = xor_compare(msg,x)
