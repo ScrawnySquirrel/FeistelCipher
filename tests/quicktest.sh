@@ -2,7 +2,8 @@
 
 INPUT=${1}
 EXT="${INPUT#*.}"
-shift
+KEY=${2}
+shift; shift
 ADDITIONAL_ARGS=${@}
 
 # ECB Test
