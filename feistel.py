@@ -44,22 +44,24 @@ def main(argv):
                     break
                 txt.append(byte_to_binary(data))
 
+    bin_subkeys = [ right_shift(bin_key, block_num) for block_num in range(len(txt)) ]
+
     # Encryption/Decryption
     results = ""
     if args.encrypt is True:
         if "ecb" in args.mode:
-            results = ecb_encrypt(txt,bin_key,rnd)
+            results = ecb_encrypt(txt,bin_subkeys,rnd)
         elif "cbc" in args.mode:
-            results = cbc_encrypt(txt,bin_key,rnd,args.block)
+            results = cbc_encrypt(txt,bin_subkeys,rnd)
         elif "ctr" in args.mode:
-            results = ctr_encrypt(txt,bin_key,rnd)
+            results = ctr_encrypt(txt,bin_subkeys,rnd)
     elif args.decrypt is True:
         if "ecb" in args.mode:
-            results = ecb_decrypt(txt,bin_key,rnd)
+            results = ecb_decrypt(txt,bin_subkeys,rnd)
         elif "cbc" in args.mode:
-            results = cbc_decrypt(txt,bin_key,rnd)
+            results = cbc_decrypt(txt,bin_subkeys,rnd)
         elif "ctr" in args.mode:
-            results = ctr_decrypt(txt,bin_key,rnd)
+            results = ctr_decrypt(txt,bin_subkeys,rnd)
 
     # Output data
     outfile = None
@@ -163,6 +165,16 @@ def binary_to_byte(bin):
     """
     return int(bin, 2).to_bytes(len(bin) // 8, byteorder='big')
 
+def left_shift(key,shift):
+    if shift > len(key):
+        shift = shift % len(key)
+    return key[shift:] + key[:shift]
+
+def right_shift(key,shift):
+    if shift > len(key):
+        shift = shift % len(key)
+    return key[-shift:] + key[:-shift]
+
 def xor_compare(bin1, bin2):
     """
     Return an XOR comparison of two binary strings.
@@ -238,67 +250,68 @@ def feistel_decrypt(ct_bin, key, rounds=2):
         dec_pairs[0],  dec_pairs[1] = xor_compare(dec_pairs[1], round_function(dec_pairs[0], dec_key, i)), dec_pairs[0]
     return ''.join(dec_pairs)
 
-def ecb_encrypt(pt_bin_list, key, rounds):
+def ecb_encrypt(pt_bin_list, keys, rounds):
     enc_result = ""
 
     with multiprocessing.Pool() as p:
-        enc_result = p.starmap(feistel_encrypt, zip(pt_bin_list, repeat(key), repeat(rounds)))
+        enc_result = p.starmap(feistel_encrypt, zip(pt_bin_list, keys, repeat(rounds)))
     return enc_result
 
-def ecb_decrypt(ct_bin_list, key, rounds):
+def ecb_decrypt(ct_bin_list, keys, rounds):
     dec_result = ""
 
     with multiprocessing.Pool() as p:
-        dec_result = p.starmap(feistel_decrypt, zip(ct_bin_list, repeat(key), repeat(rounds)))
+        dec_result = p.starmap(feistel_decrypt, zip(ct_bin_list, keys, repeat(rounds)))
     return dec_result
 
-def cbc_encrypt(pt_bin_list, key, rounds, bsize):
-    ivector = generate_random_binary(bsize*8) # Initialization Vector
+def cbc_encrypt(pt_bin_list, keys, rounds):
+    bsize = len(pt_bin_list[0])
+    ivector = generate_random_binary(bsize) # Initialization Vector
     enc_result = []
     msg = pt_bin_list
 
-    enc_result.append(feistel_encrypt(xor_compare(msg[0],ivector),key,rounds))
+    enc_result.append(feistel_encrypt(xor_compare(msg[0],ivector),keys[0],rounds))
     if len(msg) > 1:
-        for j in range(1,len(msg)):
-            enc_result.append(feistel_encrypt(xor_compare(msg[j], enc_result[j-1]),key,rounds))
+        for i in range(1,len(msg)):
+            enc_result.append(feistel_encrypt(xor_compare(msg[i], enc_result[i-1]),keys[i],rounds))
     enc_result.insert(0,ivector) # Store IV to the start of ciphertext
     return enc_result
 
-def cbc_decrypt(ct_bin_list, key, rounds):
+def cbc_decrypt(ct_bin_list, keys, rounds):
     ivector = ct_bin_list.pop(0)
     dec_result = []
     msg = ct_bin_list
 
     with multiprocessing.Pool() as p:
-        x = p.starmap(feistel_decrypt, zip(msg, repeat(key), repeat(rounds)))
+        x = p.starmap(feistel_decrypt, zip(msg, keys, repeat(rounds)))
 
     dec_result.append(xor_compare(x[0],ivector))
     if len(x) > 1:
-        for j in range(1, len(x)):
-            dec_result.append(xor_compare(x[j],msg[j-1]))
+        for i in range(1, len(x)):
+            dec_result.append(xor_compare(x[i],msg[i-1]))
 
     return dec_result
 
-def ctr_encrypt(pt_bin_list, key, rounds):
+def ctr_encrypt(pt_bin_list, keys, rounds):
     msg = pt_bin_list
     nonce = generate_random_binary(len(pt_bin_list[0])-8) # Initialization Vector
     counter = range(0,len(msg))
     enc_result = ""
 
     with multiprocessing.Pool() as p:
-        enc_result = p.starmap(ctr_process, zip(msg, repeat(nonce), counter, repeat(key), repeat(rounds)))
+        enc_result = p.starmap(ctr_process, zip(msg, repeat(nonce), counter, keys, repeat(rounds)))
 
     enc_result.insert(0,nonce+"00000000") # Store padded IV to the start of ciphertext
     return enc_result
 
-def ctr_decrypt(ct_bin_list, key, rounds):
+def ctr_decrypt(ct_bin_list, keys, rounds):
     msg = ct_bin_list
     nonce = msg.pop(0)[:-8]
     counter = range(0,len(msg))
     dec_result = ""
 
     with multiprocessing.Pool() as p:
-        dec_result = p.starmap(ctr_process, zip(msg, repeat(nonce), counter, repeat(key), repeat(rounds)))
+        dec_result = p.starmap(ctr_process, zip(msg, repeat(nonce), counter, keys, repeat(rounds)))
 
     return dec_result
 
