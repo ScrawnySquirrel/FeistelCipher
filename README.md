@@ -15,8 +15,9 @@ These instruction will help encrypt a plaintext using the provided key and decry
 * -h, --help
 * -e, --encrypt
 * -d, --decrypt
-* -c, --ciphermode
+* -m, --mode
 * -r, --rounds
+* -b, --block
 * -t, --text
 * -i, --input
 * -o, --output
