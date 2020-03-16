@@ -67,27 +67,11 @@ def main(argv):
     if args.output is not None:
         outfile = open(args.output, "wb")
         for block in results:
-            output_fp(bc.binary_to_byte(block), outfile)
+            outfile.write(bc.binary_to_byte(block))
     else:
         outmsg = ""
         for block in results:
             sys.stdout.buffer.write(bc.binary_to_byte(block))
-
-def output_fp(msg, ofile = None, fp_out = False):
-    """
-    Print to standard out or to file.
-
-    msg - the messsage to output
-    ofile - file to output
-    fp_out - output to both
-    """
-    if ofile is None:
-        print(msg)
-    else:
-        ofile.write(msg)
-        if fp_out is True:
-            print(msg)
-    return
 
 if __name__ == "__main__":
     start_time = time.time()
