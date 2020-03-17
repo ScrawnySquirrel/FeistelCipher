@@ -22,7 +22,7 @@ These instruction will help encrypt a plaintext and/or decrypt ciphertext using 
 * -s, --silent
 
 #### Cipher Operations
-The program allows both the encryption and the decryption using the Feistel cipher.
+The program allows both the encryption and the decryption using the Feistel cipher. The entry point to the program is `feistel.py`.
 
 ##### Encrypt
 The encryption operation (enabled by `-e`) takes in a plaintext and performs the encryption operation using the provided key and returns the ciphertext.
@@ -61,6 +61,7 @@ A key must be provided for performing encryption/decryption. The key is a human 
 ```
 python3 -B feistel.py -e -i input.file -k foobar
 ```
+> The provided key is used to generate subkeys.
 
 #### Output Results to File
 The `-o` argument allows the output of the program to be saved to a file.
