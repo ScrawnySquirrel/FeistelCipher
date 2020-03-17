@@ -114,6 +114,22 @@ The silent option, `-s`, suppresses output messages except for the plaintext/cip
 python3 -B feistel.py -e -i input.file -k foobar -o output.file -s
 ```
 
+## Running Tests
+In order to run smoke tests, `quicktest.sh` script can be used to perform encryption and decryption for all 3 cryptographic modes.
+```
+tests/quicktest.sh samples/images/landhc.bmp foobar -r 4 -b 64
+```
+The script essentially takes 3 positional arguments:
+* The first argument takes in the file to perform encryption. (i.e. `samples/images/landhc.bmp`)
+* The second argument takes in the key to use for the encryption/decryption. (i.e. `foobar`)
+* The third argument is optional and consumes the remaining arguments as additional arguments that are passed on to the program. (i.e. `-r 4 -b 64`)
+
+>The encrypted plaintext is saved into a file as `enc_out-{mode}.{ext}` (i.e. `enc_out-ecb.bmp`). The encrypted file is then decrypted and outputted as `dec_out-{mode}.{ext}` (i.e. `dec_out-ecb.bmp`)
+
+> In total 6 files are generated. Two for each cryptographic mode.
+
+>If the first argument is a BMP image file, the corresponding `enc_out` file will have the image header attached from the original BMP image file.
+
 ## Author
 
 **Gabriel Lee** - [ScrawnySquirrel](https://github.com/ScrawnySquirrel)
