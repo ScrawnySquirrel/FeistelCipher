@@ -4,6 +4,8 @@ Program to encrypt and decrypt using the Feistel Cipher. It has the option of on
 ## Getting Started
 These instruction will help encrypt a plaintext and/or decrypt ciphertext using the Feistel cipher in ECB, CBC, or CTR mode.
 
+No setup is required as only Python's standard modules are used.
+
 ## Prerequisite
 * Python3
 
