@@ -21,11 +21,15 @@ def main(argv):
     inputmethod.add_argument('-i', '--input', help='name of the input file')
     parser.add_argument('-o', '--output', help='name of the output file')
     parser.add_argument('-k', '--key', help='encryption key', required=True)
+    parser.add_argument('-s', '--silent', help='suppress output messages', action='store_true')
     args = parser.parse_args()
 
     if args.text is not None and args.decrypt is True:
         parser.error("argument -d/--decrypt: not allowed with argument -t/--text")
         exit()
+
+    if args.silent is False:
+        start_time = time.time()
 
     # Input data
     bin_key = bc.string_to_binary(args.key)
@@ -73,7 +77,9 @@ def main(argv):
         for block in results:
             sys.stdout.buffer.write(bc.binary_to_byte(block))
 
+
+    if args.silent is False:
+        print("--- %s seconds ---" % (time.time() - start_time))
+
 if __name__ == "__main__":
-    start_time = time.time()
     main(sys.argv[1:])
-    print("--- %s seconds ---" % (time.time() - start_time))
