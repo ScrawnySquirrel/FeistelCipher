@@ -77,7 +77,6 @@ def main(argv):
         for block in results:
             sys.stdout.buffer.write(bc.binary_to_byte(block))
 
-
     if args.silent is False:
         print("--- %s seconds ---" % (time.time() - start_time))
 
