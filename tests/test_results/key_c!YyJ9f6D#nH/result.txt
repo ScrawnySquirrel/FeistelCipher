@@ -1,0 +1,29 @@
+Mode: ecb
+Encryption...
+--- 9.390932083129883 seconds ---
+Decryption...
+--- 9.643786907196045 seconds ---
+Attach BMP header...
+54+0 records in
+54+0 records out
+54 bytes transferred in 0.000468 secs (115381 bytes/sec)
+
+Mode: cbc
+Encryption...
+--- 19.723105907440186 seconds ---
+Decryption...
+--- 10.895901918411255 seconds ---
+Attach BMP header...
+54+0 records in
+54+0 records out
+54 bytes transferred in 0.000344 secs (156959 bytes/sec)
+
+Mode: ctr
+Encryption...
+--- 10.854910135269165 seconds ---
+Decryption...
+--- 10.99734091758728 seconds ---
+Attach BMP header...
+54+0 records in
+54+0 records out
+54 bytes transferred in 0.000318 secs (169784 bytes/sec)
