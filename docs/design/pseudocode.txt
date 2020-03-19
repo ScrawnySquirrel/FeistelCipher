@@ -1,0 +1,39 @@
+Get plaintext, key, operation, and mode from input
+Read plaintext/ciphertext as bytes into blocks
+Generate subkeys from the key
+If operation is encryption
+  If mode is ECB
+    Create threads
+    Encrypt each block using Feistel in parallel with subkey
+  Else if mode is CBC
+    Generate IV
+    Plaintext block XOR IV
+    Encrypt first XOR block using Feistel with subkey
+    For each block from index 1
+      Previous ciphertext XOR plaintext
+      Encrypt XOR block using Feistel with subkey
+    Store IV in ciphertext
+  Else if mode is CTR
+    Generate nonce
+    Get counter as list incrementing in constant value
+    Create threads
+    Encrypt each block using Feistel in parallel with nonce, counter, and subkey
+    Plaintext XOR encrypted result
+    Store nonce in ciphertext
+else if operation is decryption
+  If mode is ECB
+    Create threads
+    Decrypt each block using Feistel
+  Else if mode is CBC
+    Retrieve IV from ciphertext
+    Create threads
+    Decrypt each block using Feistel in parallel with subkey
+    First decrypted block XOR IV
+    Decrypted block from index 1 XOR previous decrypted block
+  Else if mode is CTR
+    Retrieve nonce from ciphertext
+    Get counter as list incrementing in constant value
+    Create threads
+    Encrypt each block using Feistel in parallel with nonce, counter, and subkey
+    Ciphertext XOR encrypted result
+Output to file or stdout
